@@ -1,0 +1,179 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const codeConfigPath = `<span class="cm"># Linux / macOS</span>
+~/.config/librelyrics/config.json
+
+<span class="cm"># Windows</span>
+%APPDATA%\\librelyrics\\config.json`;
+
+const codeDefaultConfig = `{
+  "<span class="str">output_dir</span>":  "<span class="str">./lyrics</span>",
+  "<span class="str">file_format</span>": "<span class="str">lrc</span>",
+  "<span class="str">naming</span>":     "<span class="str">{artist} - {title}</span>",
+  "<span class="str">synced</span>":     <span class="num">true</span>,
+  "<span class="str">rich_sync</span>":  <span class="num">false</span>,
+  "<span class="str">enhanced_lrc</span>": <span class="num">false</span>,
+  "<span class="str">include_metadata</span>": <span class="num">true</span>,
+  "<span class="str">retry_count</span>": <span class="num">3</span>,
+  "<span class="str">retry_delay</span>": <span class="num">2</span>,
+  "<span class="str">verbose</span>":    <span class="num">false</span>,
+  "<span class="str">plugins</span>":    {}
+}`;
+
+const codePluginConfig = `{
+  "<span class="str">plugins</span>": {
+    "<span class="str">spotify</span>": {
+      "<span class="str">sp_dc</span>": "<span class="str">YOUR_SPOTIFY_SP_DC_COOKIE</span>"
+    },
+    "<span class="str">musixmatch</span>": {
+      "<span class="str">user_token</span>": "<span class="str">YOUR_MUSIXMATCH_TOKEN</span>"
+    }
+  }
+}`;
+
+const codeConfigGet = `<span class="kw">from</span> <span class="cls">librelyrics.config</span> <span class="kw">import</span> ConfigManager
+
+cfg = ConfigManager()
+<span class="fn">print</span>(cfg.get(<span class="str">"output_dir"</span>))    <span class="cm"># ./lyrics</span>
+<span class="fn">print</span>(cfg.get(<span class="str">"naming"</span>))         <span class="cm"># {artist} - {title}</span>`;
+
+const codeConfigSet = `cfg.set(<span class="str">"output_dir"</span>, <span class="str">"~/Music/Lyrics"</span>)
+cfg.set(<span class="str">"synced"</span>, <span class="num">False</span>)
+cfg.save()   <span class="cm"># persist to disk</span>`;
+---
+
+<DocsLayout title="Configuration" currentPage="/docs/configuration">
+  <h1 class="text-3xl font-bold text-white mb-2">Configuration</h1>
+  <p class="text-gray-400 mb-10 text-lg">Tune LibreLyrics' behaviour with a simple JSON config file. Every setting has a sensible default — edit only what you need.</p>
+
+  <!-- File Location -->
+  <section id="file-location" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">File Location</h2>
+    <p class="text-gray-400 mb-4">The config file is created automatically on first run. Location depends on your OS:</p>
+    <div class="code-block"><pre><code set:html={codeConfigPath} /></pre></div>
+    <div class="callout mt-4">
+      <strong class="text-brand-300">Tip:</strong> Run <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">librelyrics config path</code> to print the exact location on your machine.
+    </div>
+  </section>
+
+  <!-- Config Keys -->
+  <section id="config-keys" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Config Keys</h2>
+    <table class="param-table">
+      <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>output_dir</code></td>
+          <td><code>str</code></td>
+          <td><code>"./lyrics"</code></td>
+          <td>Directory where <code>.lrc</code> / <code>.txt</code> files are saved.</td>
+        </tr>
+        <tr>
+          <td><code>file_format</code></td>
+          <td><code>str</code></td>
+          <td><code>"lrc"</code></td>
+          <td><code>"lrc"</code> or <code>"txt"</code>.</td>
+        </tr>
+        <tr>
+          <td><code>naming</code></td>
+          <td><code>str</code></td>
+          <td><code>"{'{'}artist{'}'} - {'{'}title{'}'}"</code></td>
+          <td>Filename template. Variables: <code>{'{'}artist{'}'}</code>, <code>{'{'}title{'}'}</code>, <code>{'{'}album{'}'}</code>, <code>{'{'}track_number{'}'}</code>.</td>
+        </tr>
+        <tr>
+          <td><code>synced</code></td>
+          <td><code>bool</code></td>
+          <td><code>true</code></td>
+          <td>Prefer synced (timestamped) lyrics when available.</td>
+        </tr>
+        <tr>
+          <td><code>rich_sync</code></td>
+          <td><code>bool</code></td>
+          <td><code>false</code></td>
+          <td>Request word-level (karaoke) timing if supported.</td>
+        </tr>
+        <tr>
+          <td><code>enhanced_lrc</code></td>
+          <td><code>bool</code></td>
+          <td><code>false</code></td>
+          <td>Use Enhanced LRC format (word timestamps inside lines).</td>
+        </tr>
+        <tr>
+          <td><code>include_metadata</code></td>
+          <td><code>bool</code></td>
+          <td><code>true</code></td>
+          <td>Include [ti:], [ar:], [al:] tags in LRC output.</td>
+        </tr>
+        <tr>
+          <td><code>retry_count</code></td>
+          <td><code>int</code></td>
+          <td><code>3</code></td>
+          <td>Number of automatic retries on transient errors.</td>
+        </tr>
+        <tr>
+          <td><code>retry_delay</code></td>
+          <td><code>int</code></td>
+          <td><code>2</code></td>
+          <td>Base delay (seconds) between retries. Exponentially backs off.</td>
+        </tr>
+        <tr>
+          <td><code>verbose</code></td>
+          <td><code>bool</code></td>
+          <td><code>false</code></td>
+          <td>Enable DEBUG-level console logging.</td>
+        </tr>
+        <tr>
+          <td><code>plugins</code></td>
+          <td><code>object</code></td>
+          <td><code>{'{'}{'}'}</code></td>
+          <td>Per-plugin configuration (see below).</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Full Default Config -->
+  <section id="full-default" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Full Default Config</h2>
+    <div class="code-block"><pre><code set:html={codeDefaultConfig} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- Plugin Config -->
+  <section id="plugin-config" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Plugin Configuration</h2>
+    <p class="text-gray-400 mb-4">Plugins declare their own default keys via <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">default_config()</code>. These defaults are merged into the <code>plugins</code> section automatically. To override, add keys under <code>plugins.&lt;plugin_name&gt;</code>:</p>
+    <div class="code-block"><pre><code set:html={codePluginConfig} /></pre><button class="copy-btn">Copy</button></div>
+    <div class="callout mt-4">
+      <strong class="text-brand-300">Note:</strong> Plugin names are lower-cased class names minus any <code>Module</code> suffix. For example, <code>SpotifyModule</code> → <code>spotify</code>.
+    </div>
+  </section>
+
+  <!-- CLI Management -->
+  <section id="cli-management" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">CLI Config Management</h2>
+    <p class="text-gray-400 mb-4">The <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">librelyrics config</code> sub-command lets you manage settings without manually editing the JSON file.</p>
+    <table class="param-table">
+      <thead><tr><th>Command</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>config show</code></td><td>Pretty-print the full current config.</td></tr>
+        <tr><td><code>config edit</code></td><td>Open the interactive config editor.</td></tr>
+        <tr><td><code>config set &lt;key&gt; &lt;value&gt;</code></td><td>Update a config value and save.</td></tr>
+        <tr><td><code>config path</code></td><td>Print the config file path.</td></tr>
+        <tr><td><code>config reset</code></td><td>Restore the default configuration.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Programmatic Access -->
+  <section id="programmatic" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Programmatic Access</h2>
+    <p class="text-gray-400 mb-4">Read or mutate config via the <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">ConfigManager</code> class (see <a href="/docs/api#config-manager" class="text-brand-300 hover:text-brand-200">API reference</a>).</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Read</h3>
+    <div class="code-block"><pre><code set:html={codeConfigGet} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Write</h3>
+    <div class="code-block"><pre><code set:html={codeConfigSet} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+</DocsLayout>

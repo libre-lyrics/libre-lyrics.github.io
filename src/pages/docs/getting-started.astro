@@ -1,0 +1,150 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const codeInstallPypi = `pip install librelyrics`;
+const codeInstallSource = `git clone https://github.com/akashrchandran/librelyrics.git
+cd librelyrics
+pip install -e .`;
+const codeInstallDev = `pip install -e ".[dev]"`;
+const codeFetchTrack = `librelyrics https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT`;
+const codeFetchFlags = `<span class="cm"># Specify output directory</span>
+librelyrics https://open.spotify.com/track/... -d ./lyrics
+
+<span class="cm"># Overwrite existing files</span>
+librelyrics https://open.spotify.com/track/... --force
+
+<span class="cm"># Enable verbose output</span>
+librelyrics https://open.spotify.com/track/... --verbose`;
+const codeBatch = `<span class="cm"># Download all lyrics in an album</span>
+librelyrics https://open.spotify.com/album/...
+
+<span class="cm"># Download all lyrics in a playlist</span>
+librelyrics https://open.spotify.com/playlist/...`;
+const codeConfigMgmt = `<span class="cm"># Show current config</span>
+librelyrics config show
+
+<span class="cm"># Open interactive editor</span>
+librelyrics config edit
+
+<span class="cm"># Set a specific value</span>
+librelyrics config set lyrics_type synced
+
+<span class="cm"># Reset to defaults</span>
+librelyrics config reset
+
+<span class="cm"># Reveal config file location</span>
+librelyrics config path`;
+const codePluginMgmt = `<span class="cm"># List installed plugins</span>
+librelyrics plugin list
+
+<span class="cm"># Install a plugin from PyPI</span>
+librelyrics plugin install librelyrics-genius
+
+<span class="cm"># Remove a plugin</span>
+librelyrics plugin remove librelyrics-genius`;
+const codeBasicFetch = `<span class="kw">from</span> <span class="cls">librelyrics</span> <span class="kw">import</span> <span class="cls">LibreLyrics</span>, <span class="cls">LyricsType</span>
+
+lib = <span class="cls">LibreLyrics</span>()
+
+response = lib.<span class="fn">fetch</span>(
+    <span class="str">"https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"</span>,
+    lyrics_type=<span class="cls">LyricsType</span>.<span class="arg">SYNCED</span>,
+)
+
+<span class="cm"># Print synced lines</span>
+<span class="kw">for</span> line <span class="kw">in</span> response.lines:
+    <span class="fn">print</span>(<span class="str">f"[{line.start_time_ms}]</span> {line.words}<span class="str">"</span>)`;
+const codeLrcExport = `lrc_text = response.<span class="fn">to_lrc</span>()
+<span class="fn">print</span>(lrc_text)
+
+<span class="cm"># Save to file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"song.lrc"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f:
+    f.<span class="fn">write</span>(lrc_text)`;
+const codeBatchFetch = `responses = lib.<span class="fn">fetch_batch</span>(
+    <span class="str">"https://open.spotify.com/album/..."</span>,
+    lyrics_type=<span class="cls">LyricsType</span>.<span class="arg">SYNCED</span>,
+)
+
+<span class="kw">for</span> r <span class="kw">in</span> responses:
+    <span class="fn">print</span>(<span class="str">f"{r.track_name} — {len(r.lines)} lines"</span>)`;
+const codeListPlugins = `plugins = lib.<span class="fn">list_plugins</span>()
+<span class="kw">for</span> name, meta <span class="kw">in</span> plugins.items():
+    <span class="fn">print</span>(<span class="str">f"{meta.name} v{meta.version} — {meta.description}"</span>)`;
+---
+
+<DocsLayout title="Getting Started" currentPage="/docs/getting-started">
+  <h1 class="text-3xl font-bold text-white mb-2">Getting Started</h1>
+  <p class="text-gray-400 mb-10 text-lg">Install LibreLyrics and fetch your first lyrics in under a minute.</p>
+
+  <section id="installation" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Installation</h2>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">From PyPI</h3>
+    <div class="code-block"><pre><code set:html={codeInstallPypi} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">From Source</h3>
+    <div class="code-block"><pre><code set:html={codeInstallSource} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">With Dev Dependencies</h3>
+    <div class="code-block"><pre><code set:html={codeInstallDev} /></pre><button class="copy-btn">Copy</button></div>
+
+    <div class="callout callout-info">
+      <strong>Requirements</strong> — Python 3.10 or later is required.
+    </div>
+  </section>
+
+  <section id="cli-usage" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">CLI Usage</h2>
+    <p class="text-gray-400 mb-4">After installation the <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">librelyrics</code> command is available globally.</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Fetch Lyrics for a Track</h3>
+    <div class="code-block"><pre><code set:html={codeFetchTrack} /></pre><button class="copy-btn">Copy</button></div>
+
+    <p class="text-gray-400 my-4">By default lyrics are saved to the configured download directory. Use flags to customise:</p>
+    <div class="code-block"><pre><code set:html={codeFetchFlags} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Album &amp; Playlist Batch Downloads</h3>
+    <div class="code-block"><pre><code set:html={codeBatch} /></pre><button class="copy-btn">Copy</button></div>
+    <p class="text-gray-400 my-4">A spinner shows the current track being downloaded and a summary is shown at the end.</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Configuration Management</h3>
+    <div class="code-block"><pre><code set:html={codeConfigMgmt} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Plugin Management</h3>
+    <div class="code-block"><pre><code set:html={codePluginMgmt} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <section id="library-usage" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Using as a Library</h2>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Basic Fetch</h3>
+    <div class="code-block"><pre><code set:html={codeBasicFetch} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Export to LRC Format</h3>
+    <div class="code-block"><pre><code set:html={codeLrcExport} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Batch Fetch (Album / Playlist)</h3>
+    <div class="code-block"><pre><code set:html={codeBatchFetch} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">List Available Plugins</h3>
+    <div class="code-block"><pre><code set:html={codeListPlugins} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <section id="next" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-6 pb-2 border-b border-white/[0.06]">Next Steps</h2>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <a href="/docs/api" class="group p-5 rounded-xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300">
+        <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">API Reference →</h3>
+        <p class="text-gray-500 text-sm">Full documentation of all classes, methods, and data models.</p>
+      </a>
+      <a href="/docs/configuration" class="group p-5 rounded-xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300">
+        <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">Configuration →</h3>
+        <p class="text-gray-500 text-sm">All available config keys and how to customise them.</p>
+      </a>
+      <a href="/docs/plugins" class="group p-5 rounded-xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300">
+        <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">Build a Plugin →</h3>
+        <p class="text-gray-500 text-sm">Create your own lyrics provider and publish it to PyPI.</p>
+      </a>
+    </div>
+  </section>
+</DocsLayout>

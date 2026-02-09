@@ -1,0 +1,85 @@
+---
+export interface Props {
+  currentPage?: string;
+}
+
+const { currentPage = '' } = Astro.props;
+
+const navSections = [
+  {
+    heading: 'Overview',
+    links: [
+      { href: '/docs/getting-started', label: 'Getting Started' },
+    ],
+  },
+  {
+    heading: 'Reference',
+    links: [
+      { href: '/docs/api', label: 'API Reference' },
+      { href: '/docs/configuration', label: 'Configuration' },
+    ],
+  },
+  {
+    heading: 'Extend',
+    links: [
+      { href: '/docs/plugins', label: 'Plugin Development' },
+    ],
+  },
+];
+---
+
+<aside id="sidebar" class="fixed top-16 left-0 bottom-0 w-64 bg-surface-1/95 backdrop-blur-xl border-r border-white/[0.06] overflow-y-auto z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0">
+  <nav class="p-5 pt-6">
+    {navSections.map((section) => (
+      <div class="mb-6">
+        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">
+          {section.heading}
+        </span>
+        {section.links.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              'block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 mb-0.5',
+              currentPage === link.href
+                ? 'bg-brand-600/20 text-brand-300 border-l-2 border-brand-500'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    ))}
+
+    <div class="mt-8 pt-6 border-t border-white/[0.06]">
+      <a
+        href="/"
+        class="flex items-center gap-2 text-sm text-gray-500 hover:text-brand-300 transition-colors"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Back to Home
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<!-- Mobile overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
+<script>
+  const toggle = document.getElementById('mobile-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  toggle?.addEventListener('click', () => {
+    sidebar?.classList.toggle('-translate-x-full');
+    overlay?.classList.toggle('hidden');
+  });
+
+  overlay?.addEventListener('click', () => {
+    sidebar?.classList.add('-translate-x-full');
+    overlay?.classList.add('hidden');
+  });
+</script>

@@ -1,0 +1,384 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<BaseLayout title="LibreLyrics — Open-Source Lyrics Library for Python">
+  <Header />
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <!-- Animated background -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute top-1/4 -left-32 w-96 h-96 bg-brand-600/20 rounded-full blur-[128px] animate-pulse-slow"></div>
+      <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-500/15 rounded-full blur-[128px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-700/10 rounded-full blur-[200px]"></div>
+      <!-- Grid pattern -->
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.03)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-600/10 border border-brand-500/20 text-brand-300 text-sm font-medium mb-8 animate-fade-in">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Open Source &bull; Python 3.10+
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 animate-slide-up">
+        <span class="text-white">Fetch lyrics,</span><br />
+        <span class="gradient-text">beautifully synced.</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 animate-slide-up" style="animation-delay: 0.15s;">
+        An open-source Python library & CLI for fetching synced lyrics from music
+        providers through a powerful, extensible plugin architecture.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-slide-up" style="animation-delay: 0.3s;">
+        <a
+          href="/docs/getting-started"
+          class="px-8 py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/25 hover:shadow-brand-500/40 hover:scale-105"
+        >
+          Get Started
+        </a>
+        <a
+          href="/docs/api"
+          class="px-8 py-3.5 bg-white/[0.05] hover:bg-white/[0.08] text-gray-300 hover:text-white font-semibold rounded-xl border border-white/[0.1] hover:border-white/[0.2] transition-all duration-300"
+        >
+          Explore API →
+        </a>
+      </div>
+
+      <!-- Install command -->
+      <div class="inline-flex items-center gap-3 px-6 py-3 bg-surface-2 rounded-xl border border-white/[0.06] animate-slide-up" style="animation-delay: 0.45s;">
+        <span class="text-gray-500 text-sm">$</span>
+        <code class="font-mono text-sm text-gray-300">pip install librelyrics</code>
+        <button
+          id="hero-copy"
+          class="text-xs text-gray-500 hover:text-brand-300 transition-colors cursor-pointer px-2 py-1 rounded hover:bg-white/[0.05]"
+        >
+          Copy
+        </button>
+      </div>
+
+      <!-- Terminal Preview -->
+      <div class="mt-16 max-w-3xl mx-auto animate-slide-up" style="animation-delay: 0.6s;">
+        <div class="rounded-2xl bg-surface-2/80 border border-white/[0.06] overflow-hidden shadow-2xl shadow-black/40">
+          <div class="flex items-center gap-2 px-4 py-3 bg-surface-3/50 border-b border-white/[0.06]">
+            <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500/70"></div>
+            <span class="ml-3 text-xs text-gray-500 font-mono">terminal</span>
+          </div>
+          <div class="p-6 font-mono text-sm leading-relaxed text-left">
+            <p class="text-gray-500">$ librelyrics https://open.spotify.com/track/4cOdK2...</p>
+            <p class="mt-3 text-gray-400">
+              <span class="text-brand-400">✓</span> Found: <span class="text-white">Bohemian Rhapsody</span> by <span class="text-brand-300">Queen</span>
+            </p>
+            <p class="text-gray-400">
+              <span class="text-brand-400">✓</span> Lyrics type: <span class="text-emerald-400">synced</span>
+            </p>
+            <p class="mt-3 text-gray-500">[00:00.00] <span class="text-gray-300">Is this the real life?</span></p>
+            <p class="text-gray-500">[00:04.10] <span class="text-gray-300">Is this just fantasy?</span></p>
+            <p class="text-gray-500">[00:08.27] <span class="text-gray-300">Caught in a landslide,</span></p>
+            <p class="text-gray-500">[00:11.46] <span class="text-gray-300">No escape from reality.</span></p>
+            <p class="mt-3 text-emerald-400">✓ Saved to ./lyrics/Bohemian Rhapsody.lrc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-600">
+        <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="relative py-32 overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(124,58,237,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(124,58,237,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+          Everything you need for lyrics
+        </h2>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+          A complete toolkit for fetching, syncing, and managing lyrics — from CLI power tools to a fully extensible Python API.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-brand-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            🎤
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Synced Lyrics</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Fetch plain, line-synced, or rich word-level synced lyrics. Export to standard or Enhanced LRC format with precision timestamps.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-purple-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            🔌
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Plugin Architecture</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Extend LibreLyrics with custom providers via a clean plugin API. Distribute plugins as standard PyPI packages.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            📦
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Batch Downloads</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Download lyrics for entire albums or playlists in a single command with progress tracking and status reports.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            ⌨️
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">CLI & Library</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Use from the terminal with a rich interactive CLI, or import as a library in your Python projects. Your choice.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-amber-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            ⚙️
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Smart Config</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Platform-aware JSON configuration with per-plugin settings, interactive editor, and sensible defaults.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-600/5">
+          <div class="w-12 h-12 rounded-xl bg-red-600/10 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            🔄
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Automatic Retry</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Built-in exponential back-off with configurable retry counts and delays for resilient fetching across providers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Examples Section -->
+  <section class="py-32 relative">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-700/5 rounded-full blur-[200px]"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+          Simple. Powerful. Flexible.
+        </h2>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+          Works as a command-line tool or as a Python library. Choose what fits your workflow.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Python Library -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold text-white">As a Library</h3>
+          </div>
+          <div class="code-block">
+            <pre><code><span class="kw">from</span> <span class="cls">librelyrics</span> <span class="kw">import</span> <span class="cls">LibreLyrics</span>, <span class="cls">LyricsType</span>
+
+lib = <span class="cls">LibreLyrics</span>()
+
+<span class="cm"># Fetch synced lyrics for a track</span>
+response = lib.<span class="fn">fetch</span>(
+    <span class="str">"https://open.spotify.com/track/..."</span>,
+    lyrics_type=<span class="cls">LyricsType</span>.<span class="arg">SYNCED</span>,
+)
+
+<span class="cm"># Export as LRC</span>
+<span class="fn">print</span>(response.<span class="fn">to_lrc</span>())</code></pre>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+
+        <!-- CLI -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold text-white">As a CLI</h3>
+          </div>
+          <div class="code-block">
+            <pre><code><span class="cm"># Single track</span>
+<span class="fn">librelyrics</span> <span class="str">https://open.spotify.com/track/...</span>
+
+<span class="cm"># Album — batch download</span>
+<span class="fn">librelyrics</span> <span class="str">https://open.spotify.com/album/...</span>
+
+<span class="cm"># Manage configuration</span>
+<span class="fn">librelyrics</span> config show
+<span class="fn">librelyrics</span> config edit
+
+<span class="cm"># Install a plugin</span>
+<span class="fn">librelyrics</span> plugin install librelyrics-genius</code></pre>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-32 relative bg-surface-1/50">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+          How it works
+        </h2>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+          Three steps to perfectly synced lyrics.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center group">
+          <div class="w-16 h-16 rounded-2xl bg-brand-600/10 border border-brand-500/20 flex items-center justify-center text-2xl mx-auto mb-5 group-hover:scale-110 transition-transform">
+            📥
+          </div>
+          <div class="text-sm font-bold text-brand-400 mb-2">Step 1</div>
+          <h3 class="text-lg font-semibold text-white mb-2">Install</h3>
+          <p class="text-gray-400 text-sm">
+            A single <code class="text-brand-300 bg-surface-3 px-1.5 py-0.5 rounded text-xs">pip install</code> gets you the CLI and Python library.
+          </p>
+        </div>
+
+        <div class="text-center group">
+          <div class="w-16 h-16 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center text-2xl mx-auto mb-5 group-hover:scale-110 transition-transform">
+            🔗
+          </div>
+          <div class="text-sm font-bold text-purple-400 mb-2">Step 2</div>
+          <h3 class="text-lg font-semibold text-white mb-2">Pass a URL</h3>
+          <p class="text-gray-400 text-sm">
+            Give it a track, album, or playlist URL. The plugin system auto-detects the provider.
+          </p>
+        </div>
+
+        <div class="text-center group">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-2xl mx-auto mb-5 group-hover:scale-110 transition-transform">
+            🎵
+          </div>
+          <div class="text-sm font-bold text-emerald-400 mb-2">Step 3</div>
+          <h3 class="text-lg font-semibold text-white mb-2">Get Lyrics</h3>
+          <p class="text-gray-400 text-sm">
+            Receive perfectly synced lyrics in LRC or Enhanced LRC format, ready for any player.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-32 relative overflow-hidden">
+    <div class="absolute inset-0">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-600/10 rounded-full blur-[200px]"></div>
+    </div>
+
+    <div class="relative max-w-3xl mx-auto px-6 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+        Ready to get started?
+      </h2>
+      <p class="text-gray-400 text-lg mb-10">
+        Dive into the documentation, explore the API, or build your own plugin.
+      </p>
+
+      <div class="grid sm:grid-cols-3 gap-4">
+        <a
+          href="/docs/getting-started"
+          class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 text-left"
+        >
+          <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">
+            Getting Started →
+          </h3>
+          <p class="text-gray-500 text-sm">Install, configure, and fetch your first lyrics.</p>
+        </a>
+
+        <a
+          href="/docs/api"
+          class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 text-left"
+        >
+          <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">
+            API Reference →
+          </h3>
+          <p class="text-gray-500 text-sm">Full class and method documentation.</p>
+        </a>
+
+        <a
+          href="/docs/plugins"
+          class="group p-6 rounded-2xl bg-surface-2/50 border border-white/[0.06] hover:border-brand-500/30 transition-all duration-300 text-left"
+        >
+          <h3 class="text-white font-semibold mb-1 group-hover:text-brand-300 transition-colors">
+            Plugin Dev →
+          </h3>
+          <p class="text-gray-500 text-sm">Build and publish your own provider.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+
+  <script>
+    // Hero copy button
+    document.getElementById('hero-copy')?.addEventListener('click', () => {
+      navigator.clipboard.writeText('pip install librelyrics').then(() => {
+        const btn = document.getElementById('hero-copy');
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => (btn.textContent = 'Copy'), 1500);
+        }
+      });
+    });
+
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-slide-up');
+            entry.target.style.opacity = '1';
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    document.querySelectorAll('section > div > .grid > div').forEach((el) => {
+      observer.observe(el);
+    });
+  </script>
+</BaseLayout>

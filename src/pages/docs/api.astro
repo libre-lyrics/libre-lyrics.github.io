@@ -1,0 +1,282 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const codeLrcExample = `[ti:Bohemian Rhapsody]
+[al:A Night at the Opera]
+[ar:Queen]
+[length:05:54.83]
+[00:00.00] Is this the real life?
+[00:04.10] Is this just fantasy?`;
+
+const codeExceptionTree = `LibreLyricsError
+├── PluginError
+│   ├── PluginLoadError
+│   ├── PluginAPIVersionError
+│   └── NoMatchingModuleError
+├── ConfigurationError
+│   └── CorruptedConfig
+└── ProviderError
+    ├── NotValidSp_Dc
+    ├── NoSongPlaying
+    ├── TOTPGenerationException
+    ├── LyricsNotFound
+    └── RateLimitError`;
+---
+
+<DocsLayout title="API Reference" currentPage="/docs/api">
+  <h1 class="text-3xl font-bold text-white mb-2">API Reference</h1>
+  <p class="text-gray-400 mb-10 text-lg">Complete reference for every public class, method, and data model in LibreLyrics.</p>
+
+  <!-- LibreLyrics Class -->
+  <section id="librelyrics-class" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">LibreLyrics</code>
+    </h2>
+    <p class="text-gray-400 mb-4">Main orchestrator. Loads plugins, manages configuration, and dispatches URL-based fetch requests to the matching provider.</p>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="kw">class</span> <span class="cls">LibreLyrics</span>(<span class="arg">config</span>=<span class="num">None</span>, <span class="arg">verbose</span>=<span class="num">False</span>)</h4>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>config</code></td><td><code>dict | None</code></td><td>Optional pre-loaded configuration dictionary. If <code>None</code>, loads from the default config file.</td></tr>
+          <tr><td><code>verbose</code></td><td><code>bool</code></td><td>Enable verbose (DEBUG-level) logging.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">fetch</span>(<span class="arg">url</span>: <span class="cls">str</span>) → <span class="cls">LyricsResponse</span></h4>
+      <p class="text-gray-400 text-sm mb-3">Fetch lyrics for a single track URL. Finds the first matching plugin and returns the result with automatic retry.</p>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code></td><td><code>str</code></td><td>Track URL to fetch lyrics from.</td></tr>
+        </tbody>
+      </table>
+      <p class="text-gray-500 text-sm mt-2"><strong class="text-gray-300">Raises:</strong> <code>NoMatchingModuleError</code>, <code>LyricsNotFound</code></p>
+    </div>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">fetch_batch</span>(<span class="arg">url</span>: <span class="cls">str</span>) → <span class="cls">list[LyricsResponse]</span></h4>
+      <p class="text-gray-400 text-sm mb-3">Fetch lyrics for an album or playlist URL. Automatically dispatches to the appropriate batch method based on declared capabilities.</p>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code></td><td><code>str</code></td><td>Album or playlist URL.</td></tr>
+        </tbody>
+      </table>
+      <p class="text-gray-500 text-sm mt-2"><strong class="text-gray-300">Raises:</strong> <code>NoMatchingModuleError</code></p>
+    </div>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">list_plugins</span>() → <span class="cls">list[type[LyricsModule]]</span></h4>
+      <p class="text-gray-400 text-sm">Return a list of all loaded plugin classes.</p>
+    </div>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="arg">config</span> : <span class="cls">dict</span> <span class="text-gray-600">(property)</span></h4>
+      <p class="text-gray-400 text-sm">The raw configuration dictionary (read-only access).</p>
+    </div>
+  </section>
+
+  <!-- LyricsResponse -->
+  <section id="lyrics-response" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">LyricsResponse</code>
+    </h2>
+    <p class="text-gray-400 mb-4">Standardised response dataclass returned by every plugin's <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">fetch()</code>. All timing values are in <strong class="text-white">milliseconds</strong>.</p>
+
+    <table class="param-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>title</code></td><td><code>str</code></td><td>Track title.</td></tr>
+        <tr><td><code>artist</code></td><td><code>str</code></td><td>Artist name.</td></tr>
+        <tr><td><code>lyrics</code></td><td><code>list[LyricsLine]</code></td><td>List of lyric lines.</td></tr>
+        <tr><td><code>source</code></td><td><code>str</code></td><td>Plugin name that provided the lyrics.</td></tr>
+        <tr><td><code>album</code></td><td><code>str | None</code></td><td>Album name, if available.</td></tr>
+        <tr><td><code>synced</code></td><td><code>bool</code></td><td>Whether lyrics have line-level timing.</td></tr>
+        <tr><td><code>rich_synced</code></td><td><code>bool</code></td><td>Whether lyrics have word-level timing.</td></tr>
+        <tr><td><code>duration_ms</code></td><td><code>int | None</code></td><td>Track duration in milliseconds.</td></tr>
+        <tr><td><code>metadata</code></td><td><code>dict</code></td><td>Arbitrary extra metadata (track_number, explicit, etc.).</td></tr>
+      </tbody>
+    </table>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">to_lrc</span>(<span class="arg">include_metadata</span>=<span class="num">True</span>, <span class="arg">enhanced</span>=<span class="num">False</span>) → <span class="cls">str</span></h4>
+      <p class="text-gray-400 text-sm mb-3">Format lyrics as LRC file content.</p>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>include_metadata</code></td><td><code>bool</code></td><td>Include [ti:], [ar:], [al:] tags.</td></tr>
+          <tr><td><code>enhanced</code></td><td><code>bool</code></td><td>Use Enhanced LRC with word-level timestamps.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Example Output (Standard LRC)</h3>
+    <div class="code-block"><pre><code set:html={codeLrcExample} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- LyricsLine -->
+  <section id="lyrics-line" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">LyricsLine</code>
+    </h2>
+    <p class="text-gray-400 mb-4">A single line of lyrics. Frozen dataclass.</p>
+    <table class="param-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>text</code></td><td><code>str</code></td><td>Line text (the actual lyric words).</td></tr>
+        <tr><td><code>start_ms</code></td><td><code>int | None</code></td><td>Start timestamp in ms. None for unsynced.</td></tr>
+        <tr><td><code>end_ms</code></td><td><code>int | None</code></td><td>End timestamp in ms. Available for rich synced lyrics.</td></tr>
+        <tr><td><code>words</code></td><td><code>tuple[LyricsWord, ...] | None</code></td><td>Word-level timing for karaoke-style display.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- LyricsWord -->
+  <section id="lyrics-word" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">LyricsWord</code>
+    </h2>
+    <p class="text-gray-400 mb-4">A single word with timing. Frozen dataclass.</p>
+    <table class="param-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>word</code></td><td><code>str</code></td><td>The word text.</td></tr>
+        <tr><td><code>start_ms</code></td><td><code>int</code></td><td>Start timestamp in ms.</td></tr>
+        <tr><td><code>end_ms</code></td><td><code>int</code></td><td>End timestamp in ms.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- LyricsType -->
+  <section id="lyrics-type" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">LyricsType</code>
+    </h2>
+    <p class="text-gray-400 mb-4">Enum of lyrics formats a module can provide.</p>
+    <table class="param-table">
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>PLAIN</code></td><td>Unsynced lyrics — just text, no timestamps.</td></tr>
+        <tr><td><code>SYNCED</code></td><td>Line-synced lyrics — one timestamp per line.</td></tr>
+        <tr><td><code>RICH_SYNCED</code></td><td>Word-synced lyrics — timestamp per word, karaoke-style.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ModuleCapability -->
+  <section id="module-capability" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">ModuleCapability</code>
+    </h2>
+    <p class="text-gray-400 mb-4">Flag enum of capabilities a module can declare. Used by the orchestrator for dispatch.</p>
+    <table class="param-table">
+      <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>SINGLE_TRACK</code></td><td>Can fetch lyrics for a single track.</td></tr>
+        <tr><td><code>ALBUM</code></td><td>Can fetch all tracks in an album.</td></tr>
+        <tr><td><code>PLAYLIST</code></td><td>Can fetch all tracks in a playlist.</td></tr>
+        <tr><td><code>SEARCH</code></td><td>Can search for tracks by metadata.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ConfigManager -->
+  <section id="config-manager" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">
+      <code class="text-brand-300 font-mono">ConfigManager</code>
+    </h2>
+    <p class="text-gray-400 mb-4">Manages loading, saving, merging and plugin-specific config slicing.</p>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="kw">class</span> <span class="cls">ConfigManager</span>(<span class="arg">config</span>=<span class="num">None</span>, <span class="arg">config_path</span>=<span class="num">None</span>)</h4>
+      <table class="param-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>config</code></td><td><code>dict | None</code></td><td>Pre-loaded config. If None, loads from disk.</td></tr>
+          <tr><td><code>config_path</code></td><td><code>Path | None</code></td><td>Custom config file path. Defaults to platform path.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">get</span>(<span class="arg">key</span>, <span class="arg">default</span>=<span class="num">None</span>) → <span class="cls">Any</span></h4>
+      <p class="text-gray-400 text-sm">Get a config value by key.</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">set</span>(<span class="arg">key</span>, <span class="arg">value</span>)</h4>
+      <p class="text-gray-400 text-sm">Set a config value.</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">save</span>()</h4>
+      <p class="text-gray-400 text-sm">Write the current config to disk (creates parent dirs automatically).</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">for_plugin</span>(<span class="arg">plugin_cls</span>) → <span class="cls">dict</span></h4>
+      <p class="text-gray-400 text-sm">Return the merged config for a specific plugin (plugin defaults + stored overrides).</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">merge_plugin_defaults</span>(<span class="arg">plugins</span>) → <span class="cls">bool</span></h4>
+      <p class="text-gray-400 text-sm">Merge default_config() from every loaded plugin into the plugins section. Returns True if something changed.</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="arg">raw</span> : <span class="cls">dict</span> <span class="text-gray-600">(property)</span></h4>
+      <p class="text-gray-400 text-sm">Direct access to the underlying config dictionary.</p>
+    </div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Standalone Helpers</h3>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">get_config_path</span>() → <span class="cls">Path</span></h4>
+      <p class="text-gray-400 text-sm">Returns the platform-specific config file path:<br />
+        Windows: %APPDATA%\librelyrics\config.json<br />
+        Linux/macOS: ~/.config/librelyrics/config.json
+      </p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">get_default_config</span>() → <span class="cls">dict</span></h4>
+      <p class="text-gray-400 text-sm">Return the default config dictionary (see <a href="/docs/configuration" class="text-brand-300 hover:text-brand-200">Configuration</a> for all keys).</p>
+    </div>
+  </section>
+
+  <!-- Exceptions -->
+  <section id="exceptions" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Exceptions</h2>
+    <p class="text-gray-400 mb-4">All exceptions inherit from <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">LibreLyricsError</code>.</p>
+    <div class="code-block"><pre><code set:html={codeExceptionTree} /></pre></div>
+
+    <table class="param-table mt-6">
+      <thead><tr><th>Exception</th><th>When Raised</th></tr></thead>
+      <tbody>
+        <tr><td><code>PluginLoadError</code></td><td>A plugin module failed to import.</td></tr>
+        <tr><td><code>PluginAPIVersionError</code></td><td>Plugin declares an incompatible API version.</td></tr>
+        <tr><td><code>NoMatchingModuleError</code></td><td>No plugin regex matches the provided URL.</td></tr>
+        <tr><td><code>ConfigurationError</code></td><td>Config is invalid or missing required values.</td></tr>
+        <tr><td><code>CorruptedConfig</code></td><td>Config JSON cannot be parsed.</td></tr>
+        <tr><td><code>LyricsNotFound</code></td><td>Provider has no lyrics for the requested track.</td></tr>
+        <tr><td><code>RateLimitError</code></td><td>HTTP 429 — triggers automatic retry back-off.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Helper Functions -->
+  <section id="helpers" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Helper Functions</h2>
+    <p class="text-gray-400 mb-4">Standalone utility functions in <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">librelyrics.core</code>.</p>
+
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">save_lyrics</span>(<span class="arg">lyrics</span>: <span class="cls">str</span>, <span class="arg">path</span>: <span class="cls">str</span>)</h4>
+      <p class="text-gray-400 text-sm">Write lyrics content to a file, creating parent directories automatically.</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">download_lyrics</span>(<span class="arg">librelyrics</span>, <span class="arg">url</span>, <span class="arg">folder</span>=<span class="num">None</span>) → <span class="cls">tuple[list[str], list[str]]</span></h4>
+      <p class="text-gray-400 text-sm">Download lyrics for a URL (track, album, or playlist). Returns (successful_tracks, failed_tracks).</p>
+    </div>
+    <div class="method-block">
+      <h4 class="method-sig"><span class="fn">rename_using_format</span>(<span class="arg">template</span>: <span class="cls">str</span>, <span class="arg">data</span>: <span class="cls">dict</span>) → <span class="cls">str</span></h4>
+      <p class="text-gray-400 text-sm">Format a filename template using variable placeholders. Invalid filename characters are stripped.</p>
+    </div>
+  </section>
+</DocsLayout>

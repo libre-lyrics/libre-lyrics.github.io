@@ -1,0 +1,204 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+
+const codeMinPlugin = `<span class="kw">from</span> <span class="cls">librelyrics.modules.base</span> <span class="kw">import</span> LyricsModule, ModuleMeta
+<span class="kw">from</span> <span class="cls">librelyrics.models</span> <span class="kw">import</span> (
+    LyricsResponse, LyricsLine, LyricsType, ModuleCapability
+)
+
+
+<span class="kw">class</span> <span class="cls">AcmeModule</span>(LyricsModule):
+    <span class="str">"""Lyrics provider for acme-lyrics.example."""</span>
+
+    <span class="dec">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">meta</span>() -&gt; ModuleMeta:
+        <span class="kw">return</span> ModuleMeta(
+            name=<span class="str">"Acme Lyrics"</span>,
+            version=<span class="str">"0.1.0"</span>,
+            url_regex=<span class="str">r"https?://acme-lyrics\\.example/track/(\\w+)"</span>,
+            api_version=<span class="num">1</span>,
+            capabilities=frozenset({ModuleCapability.SINGLE_TRACK}),
+            lyrics_types=frozenset({LyricsType.SYNCED}),
+        )
+
+    <span class="kw">def</span> <span class="fn">fetch</span>(<span class="arg">self</span>, <span class="arg">url</span>: <span class="cls">str</span>) -&gt; LyricsResponse:
+        track_id = <span class="arg">self</span>._extract_id(url)
+        data = <span class="arg">self</span>._api_get(<span class="str">f"/v1/track/</span>{track_id}<span class="str">/lyrics"</span>)
+        lines = [
+            LyricsLine(text=l[<span class="str">"text"</span>], start_ms=l[<span class="str">"start"</span>])
+            <span class="kw">for</span> l <span class="kw">in</span> data[<span class="str">"lyrics"</span>]
+        ]
+        <span class="kw">return</span> LyricsResponse(
+            title=data[<span class="str">"title"</span>],
+            artist=data[<span class="str">"artist"</span>],
+            lyrics=lines,
+            source=<span class="arg">self</span>.meta().name,
+            synced=<span class="num">True</span>,
+        )
+
+    <span class="kw">def</span> <span class="fn">_extract_id</span>(<span class="arg">self</span>, <span class="arg">url</span>):
+        <span class="kw">import</span> <span class="cls">re</span>
+        <span class="kw">return</span> re.search(<span class="arg">self</span>.meta().url_regex, url).group(<span class="num">1</span>)
+
+    <span class="kw">def</span> <span class="fn">_api_get</span>(<span class="arg">self</span>, <span class="arg">endpoint</span>):
+        <span class="kw">import</span> <span class="cls">requests</span>
+        resp = requests.get(<span class="str">f"https://api.acme-lyrics.example</span>{endpoint}<span class="str">"</span>)
+        resp.raise_for_status()
+        <span class="kw">return</span> resp.json()`;
+
+const codeModuleMeta = `ModuleMeta(
+    name:         <span class="cls">str</span>,            <span class="cm"># Human-readable plugin name</span>
+    version:      <span class="cls">str</span>,            <span class="cm"># SemVer plugin version</span>
+    url_regex:    <span class="cls">str</span>,            <span class="cm"># Regex matching supported track URLs</span>
+    api_version:  <span class="cls">int</span>,            <span class="cm"># Must equal CURRENT_API_VERSION (1)</span>
+    capabilities: frozenset[ModuleCapability],
+    lyrics_types: frozenset[LyricsType],
+)`;
+
+const codeBatchTrack = `<span class="kw">def</span> <span class="fn">fetch_album</span>(<span class="arg">self</span>, <span class="arg">url</span>: <span class="cls">str</span>) -&gt; <span class="cls">list[LyricsResponse]</span>:
+    album = <span class="arg">self</span>._api_get(<span class="str">f"/v1/album/</span>{<span class="arg">self</span>._extract_id(url)}<span class="str">"</span>)
+    results = []
+    <span class="kw">for</span> track <span class="kw">in</span> album[<span class="str">"tracks"</span>]:
+        <span class="kw">try</span>:
+            results.append(<span class="arg">self</span>.fetch(track[<span class="str">"url"</span>]))
+        <span class="kw">except</span> <span class="cls">Exception</span>:
+            <span class="kw">continue</span>
+    <span class="kw">return</span> results`;
+
+const codeBatchMeta = `<span class="dec">@staticmethod</span>
+<span class="kw">def</span> <span class="fn">meta</span>():
+    <span class="kw">return</span> ModuleMeta(
+        <span class="cm"># ...</span>
+        capabilities=frozenset({
+            ModuleCapability.SINGLE_TRACK,
+            ModuleCapability.ALBUM,
+        }),
+    )`;
+
+const codeDefaultConfig = `<span class="dec">@staticmethod</span>
+<span class="kw">def</span> <span class="fn">default_config</span>() -&gt; <span class="cls">dict</span>:
+    <span class="kw">return</span> {
+        <span class="str">"sp_dc"</span>: <span class="str">""</span>,
+        <span class="str">"market"</span>: <span class="str">"US"</span>,
+    }`;
+
+const codeUseConfig = `<span class="kw">def</span> <span class="fn">fetch</span>(<span class="arg">self</span>, <span class="arg">url</span>):
+    cfg = <span class="arg">self</span>.config          <span class="cm"># dict (merged defaults + user overrides)</span>
+    sp_dc = cfg[<span class="str">"sp_dc"</span>]
+    market = cfg.get(<span class="str">"market"</span>, <span class="str">"US"</span>)
+    <span class="cm"># ...</span>`;
+
+const codeLifecycle = `<span class="kw">class</span> <span class="cls">AcmeModule</span>(LyricsModule):
+    <span class="kw">def</span> <span class="fn">setup</span>(<span class="arg">self</span>):
+        <span class="str">"""Called once when plugin is loaded."""</span>
+        <span class="arg">self</span>.session = requests.Session()
+        <span class="arg">self</span>.session.headers.update({<span class="str">"X-Api-Key"</span>: <span class="arg">self</span>.config[<span class="str">"api_key"</span>]})
+
+    <span class="kw">def</span> <span class="fn">teardown</span>(<span class="arg">self</span>):
+        <span class="str">"""Called when LibreLyrics shuts down."""</span>
+        <span class="arg">self</span>.session.close()`;
+
+const codeRetry = `<span class="dec">@staticmethod</span>
+<span class="kw">def</span> <span class="fn">default_config</span>():
+    <span class="kw">return</span> {
+        <span class="str">"retry_count"</span>: <span class="num">5</span>,       <span class="cm"># override for this plugin</span>
+        <span class="str">"retry_delay"</span>: <span class="num">3</span>,       <span class="cm"># longer initial wait</span>
+    }`;
+
+const codePyproject = `<span class="cm"># pyproject.toml (your plugin's)</span>
+[project.entry-points.<span class="str">"librelyrics.plugins"</span>]
+acme = <span class="str">"acme_lyrics.plugin:AcmeModule"</span>`;
+
+const codeInstallPlugin = `pip install acme-lyrics-plugin
+<span class="cm"># LibreLyrics will auto-discover it on next run</span>`;
+
+const codeVerifyPlugin = `<span class="kw">from</span> <span class="cls">librelyrics</span> <span class="kw">import</span> LibreLyrics
+
+ll = LibreLyrics()
+<span class="kw">for</span> plugin <span class="kw">in</span> ll.list_plugins():
+    <span class="fn">print</span>(plugin.meta().name, plugin.meta().version)`;
+---
+
+<DocsLayout title="Plugins" currentPage="/docs/plugins">
+  <h1 class="text-3xl font-bold text-white mb-2">Plugin Development</h1>
+  <p class="text-gray-400 mb-10 text-lg">LibreLyrics is plugin-first — every lyrics provider is a self-contained module. This guide shows how to build, configure, and distribute your own.</p>
+
+  <!-- How Plugins Work -->
+  <section id="how-plugins-work" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">How Plugins Work</h2>
+    <ol class="list-decimal list-inside text-gray-400 space-y-2">
+      <li>On startup, LibreLyrics scans for installed packages that declare the <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">librelyrics.plugins</code> entry-point.</li>
+      <li>Each discovered class is validated against the current API version.</li>
+      <li>When <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">fetch(url)</code> is called, the orchestrator matches the URL against every plugin's <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">url_regex</code> and dispatches to the first match.</li>
+    </ol>
+  </section>
+
+  <!-- Minimal Plugin -->
+  <section id="minimal-plugin" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Minimal Plugin</h2>
+    <p class="text-gray-400 mb-4">Subclass <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">LyricsModule</code>, implement <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">meta()</code> and <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">fetch()</code>.</p>
+    <div class="code-block"><pre><code set:html={codeMinPlugin} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- ModuleMeta Reference -->
+  <section id="module-meta" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">ModuleMeta Reference</h2>
+    <div class="code-block"><pre><code set:html={codeModuleMeta} /></pre></div>
+    <div class="callout mt-4">
+      <strong class="text-brand-300">Important:</strong> If <code>api_version</code> doesn't match the host's <code>CURRENT_API_VERSION</code>, the plugin is rejected with <code>PluginAPIVersionError</code>.
+    </div>
+  </section>
+
+  <!-- Batch -->
+  <section id="batch" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Batch Capabilities (Album / Playlist)</h2>
+    <p class="text-gray-400 mb-4">To support albums or playlists, implement the corresponding method and add the capability flag:</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">1. Add the method</h3>
+    <div class="code-block"><pre><code set:html={codeBatchTrack} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">2. Declare the capability</h3>
+    <div class="code-block"><pre><code set:html={codeBatchMeta} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- Plugin Configuration -->
+  <section id="plugin-config" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Plugin Configuration</h2>
+    <p class="text-gray-400 mb-4">Define defaults via <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">default_config()</code>. User overrides are merged automatically and available via <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">self.config</code>:</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Declare defaults</h3>
+    <div class="code-block"><pre><code set:html={codeDefaultConfig} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Use in fetch</h3>
+    <div class="code-block"><pre><code set:html={codeUseConfig} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- Lifecycle Hooks -->
+  <section id="lifecycle" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Lifecycle Hooks</h2>
+    <p class="text-gray-400 mb-4">Override <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">setup()</code> / <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">teardown()</code> for one-time initialisation and cleanup:</p>
+    <div class="code-block"><pre><code set:html={codeLifecycle} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- Retry & Back-off -->
+  <section id="retry" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Retry &amp; Back-off</h2>
+    <p class="text-gray-400 mb-4">LibreLyrics automatically retries on <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">RateLimitError</code> and transient network failures using exponential back-off. You can override the defaults per-plugin:</p>
+    <div class="code-block"><pre><code set:html={codeRetry} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+
+  <!-- Packaging -->
+  <section id="packaging" class="mb-12">
+    <h2 class="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-white/[0.06]">Packaging &amp; Distribution</h2>
+    <p class="text-gray-400 mb-4">Plugins are standard Python packages. Register the entry-point in your <code class="text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono">pyproject.toml</code>:</p>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Entry Point</h3>
+    <div class="code-block"><pre><code set:html={codePyproject} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Install &amp; test</h3>
+    <div class="code-block"><pre><code set:html={codeInstallPlugin} /></pre><button class="copy-btn">Copy</button></div>
+
+    <h3 class="text-base font-semibold text-brand-300 mt-6 mb-3">Verify</h3>
+    <div class="code-block"><pre><code set:html={codeVerifyPlugin} /></pre><button class="copy-btn">Copy</button></div>
+  </section>
+</DocsLayout>

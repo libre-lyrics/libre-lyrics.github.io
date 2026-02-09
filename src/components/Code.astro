@@ -1,0 +1,12 @@
+---
+export interface Props {
+  code: string;
+}
+
+const { code } = Astro.props;
+---
+
+<div class="code-block">
+  <pre><code set:html={code} /></pre>
+  <button class="copy-btn">Copy</button>
+</div>

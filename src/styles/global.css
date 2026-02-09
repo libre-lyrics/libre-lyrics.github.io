@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-surface-0 text-gray-200 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  ::selection {
+    @apply bg-brand-600/40 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-4 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-5;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #c084fc 100%);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #7c3aed, #a78bfa, #7c3aed);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06];
+  }
+
+  .code-block {
+    @apply relative bg-surface-2 border border-white/[0.06] rounded-xl overflow-hidden;
+  }
+
+  .code-block pre {
+    @apply p-5 overflow-x-auto text-sm leading-relaxed;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .code-block code {
+    @apply text-gray-300;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .code-block .copy-btn {
+    @apply absolute top-3 right-3 px-3 py-1 text-xs font-medium
+           bg-surface-4 hover:bg-surface-5 text-gray-400 hover:text-gray-200
+           rounded-lg border border-white/[0.06] transition-all duration-200 cursor-pointer;
+  }
+
+  /* Syntax highlighting */
+  .code-block .kw { @apply text-purple-400; }
+  .code-block .cls { @apply text-blue-400; }
+  .code-block .fn { @apply text-yellow-300; }
+  .code-block .str { @apply text-emerald-400; }
+  .code-block .num { @apply text-orange-400; }
+  .code-block .cm { @apply text-gray-500 italic; }
+  .code-block .arg { @apply text-sky-300; }
+  .code-block .dec { @apply text-pink-400; }
+
+  /* Docs-specific */
+  .param-table {
+    @apply w-full border-collapse text-sm my-4;
+  }
+
+  .param-table th {
+    @apply text-left p-3 bg-surface-3 text-gray-300 font-semibold border-b border-white/[0.06] first:rounded-tl-lg last:rounded-tr-lg;
+  }
+
+  .param-table td {
+    @apply p-3 border-b border-white/[0.04] text-gray-400;
+  }
+
+  .param-table td code {
+    @apply text-brand-300 bg-surface-4 px-1.5 py-0.5 rounded text-xs font-mono;
+  }
+
+  .param-table tr:hover td {
+    @apply bg-surface-2;
+  }
+
+  .method-block {
+    @apply my-6 p-5 bg-surface-2 border border-white/[0.06] rounded-xl;
+  }
+
+  .method-sig {
+    @apply font-mono text-sm mb-3;
+  }
+
+  .callout {
+    @apply p-4 rounded-xl border-l-4 my-6;
+  }
+
+  .callout-info {
+    @apply bg-blue-500/[0.07] border-blue-500 text-blue-200;
+  }
+
+  .callout-warning {
+    @apply bg-amber-500/[0.07] border-amber-500 text-amber-200;
+  }
+
+  .callout-danger {
+    @apply bg-red-500/[0.07] border-red-500 text-red-200;
+  }
+}
